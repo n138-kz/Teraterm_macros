@@ -1,0 +1,96 @@
+true = 1
+false = 0
+ttermYes = 1
+ttermNo = 0
+ttermllessthan = -1
+ttermlmorethan = 1
+ttermequal = 0
+
+count = 0
+hostname = ''
+mesg = ''
+
+show -1
+statusbox 'Connecting' param1 
+
+mesg = ''
+while true
+	mpause 100
+
+	count = count + 1
+	
+	strconcat mesg 'Connecting try#'
+	int2str count_str count
+	strconcat mesg count_str
+	strconcat mesg #13
+	strconcat mesg #10
+	statusbox mesg param1
+
+	testlink
+	if result == 2 then
+		break
+	endif
+	
+	pause 1
+	
+	if count >= 3 then
+		pause 2
+	endif
+	if count >= 5 then
+		mesg = ''
+		strconcat mesg ''
+		strconcat mesg 'Unable to connect to host.\n'
+		strconcat mesg '\n'
+		strconcat mesg hostname
+		strspecial mesg
+		messagebox mesg param1
+		end
+	endif
+endwhile
+closesbox
+
+gethostname hostname
+
+fileopen fp_cmds01 "C:\Users\yneon\Documents\cmds.txt" 0
+if fp_cmds01 = -1 goto endProc
+
+goto correctLog
+:endProc
+statusbox 'system call the Exit()' param1
+end
+:correctLog
+send #13 #10
+strdim cmd_init 100
+cmd_init[0]  = 'terminal length 0'
+cmd_init[1]  = 'terminal width 0'
+cmd_init[2]  = ''
+cmd_init[3]  = 'show version'
+cmd_init[4]  = 'show running-config'
+cmd_init[5]  = 'show ip interface brief'
+cmd_init[6]  = ''
+cmd_init[7]  = ''
+cmd_init[8]  = ''
+cmd_init[9]  = ''
+cmd_init[10] = 'show vrrp brief all'
+cmd_init[11] = 'show vrrp all'
+cmd_init[12] = 'show ip sla summary'
+cmd_init[13] = 'show ntp associations'
+cmd_init[14] = ''
+cmd_init[15] = ''
+cmd_init[16] = ''
+cmd_init[17] = ''
+cmd_init[18] = ''
+cmd_init[98] = 'archive config'
+cmd_init[99] = 'terminal monitor'
+
+for i 0 99
+	strcompare cmd_init[i] ''
+	if result == ttermequal continue
+
+	flushrecv
+	waitregex '^n138-.*#'
+	send '' #13 #10
+	send '' #13 #10
+	send '' #13 #10
+	send ' ' cmd_init[i] ' ' #13 #10
+next
